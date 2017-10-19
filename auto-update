@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Plasser scriptet i /etc/cron.weekly/ eller /etc/cron.daily/
+# Scriptet oppdaterer og renser systemet.
+# Når systemet er oppdatert sendes det automatisk en mail
+# hvor det står om oppdateringen gikk bra eller ikke,
+# samt en logg over hva som har skjedd.
+
+
+# Sett variabelen admin_mail til din mail adresse
+admin_mail="din-egen@mail.no"
+
+# Lager en midlertidig fil i /tmp for å skrive loggen til.
+tmpfile=$(mktemp)
+
+# Kjører kommandoene for å oppdatere systemet og
+# skriver logg filen samtidig
+echo "apt update" >> ${tmpfile}
+apt-get update -qy >> ${tmpfile} 2>&1
+echo "" >> ${tmpfile}
+echo "apt upgrade" >> ${tmpfile}
+apt-get upgrade -qy >> ${tmpfile} 2>&1
+echo "" >> ${tmpfile}
+echo "apt autoremove" >> ${tmpfile}
+apt-get autoremove -y >> ${tmpfile} 2>&1
+
+# Sender den midlertidige loggen via mail, statusen på oppdateringen
+# står i Emne feltet.
+if grep -q 'E: \|W: ' ${tmpfile} ; then
+        mail -s "Oppdateringen av serveren din feilet $(date)" ${admin_mail} < ${tmpfile}
+else
+        mail -s "Oppdateringen av serveren din var vellykket $(date)" ${admin_mail} < ${tmpfile}
+fi
+
+# Fjerner den midlertidige logg filen
+rm -f ${tmpfile}
+
