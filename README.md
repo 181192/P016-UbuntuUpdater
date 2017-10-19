@@ -4,3 +4,6 @@ Script som oppdaterer systemet og renser for overflødige filer automatisk.
  - Endre variabelen admin_mail til  din mail adresse.
 
 Done!
+
+Når scriptet er kjørt ferdig vil du få en mail om hvordan oppdateringen gikk.
+Gikk noe feil, vil du få loggen med i mailen på den kommandoen som feilet.
